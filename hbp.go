@@ -96,7 +96,7 @@ func build_post_xml(title, author, contents, category string, draft bool) string
 	}
 	output, err := xml.MarshalIndent(v, "", "    ")
 	if err != nil {
-		fmt.Println("XML Marshal error:", err)
+		fmt.Fprintln(os.Stderr, "投稿用XMLの生成に失敗しました:", err)
 		return "error"
 	}
 
@@ -121,8 +121,12 @@ func call_atom_api(xml string) error {
 	req.Header.Set("Content-Type", "application/atomsvc+xml; charset=utf-8")
 
 	client := new(http.Client)
-	res, _ := client.Do(req)
+	res, req_err := client.Do(req)
 	defer res.Body.Close()
+	if req_err != nil || res.StatusCode != 200 {
+		fmt.Fprintf(os.Stderr, "HTTPリクエストエラー.\nアカウント設定は正しいですか?\n~/.hbpを確認してください.\n")
+		os.Exit(1)
+	}
 
 	_, err := ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -220,7 +224,7 @@ func load_config() UserConfiguration {
 	config_file_path := (user.HomeDir + "/.hbp")
 	fp, err := os.Open(config_file_path)
 	if err != nil {
-		fmt.Println("設定ファイルが見つかりません.\nホームディレクトリ以下の.hbpファイルを確認してください.")
+		fmt.Fprintln(os.Stderr, "設定ファイルが見つかりません.\nホームディレクトリ以下の.hbpファイルを確認してください.")
 		os.Exit(1)
 	}
 	return load_config_file(fp)
@@ -236,7 +240,7 @@ func load_config_file(fp *os.File) UserConfiguration {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Println("設定ファイルの読み込みに失敗しました.\nホームディレクトリ以下の.hbpファイルを確認してください.")
+			fmt.Fprintln(os.Stderr, "設定ファイルの読み込みに失敗しました.\nホームディレクトリ以下の.hbpファイルを確認してください.")
 			os.Exit(1)
 		}
 		m[record[0]] = record[1]
