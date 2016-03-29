@@ -123,7 +123,7 @@ func call_atom_api(xml string) error {
 	client := new(http.Client)
 	res, req_err := client.Do(req)
 	defer res.Body.Close()
-	if req_err != nil || res.StatusCode != 200 {
+	if req_err != nil || res.StatusCode != http.StatusOK {
 		fmt.Fprintf(os.Stderr, "HTTPリクエストエラー.\nアカウント設定は正しいですか?\n~/.hbpを確認してください.\n")
 		os.Exit(1)
 	}
