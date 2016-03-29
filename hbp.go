@@ -1,17 +1,17 @@
 package main
 
 import (
-	"encoding/xml"
+	"bufio"
+	"bytes"
 	"encoding/csv"
+	"encoding/xml"
 	"flag"
 	"fmt"
-	"os"
-	"os/user"
-	"net/http"
-	"bytes"
 	"io"
 	"io/ioutil"
-	"bufio"
+	"net/http"
+	"os"
+	"os/user"
 	"strings"
 )
 
@@ -105,9 +105,9 @@ func build_post_xml(title, author, contents, category string, draft bool) string
 
 func draft_post_url() string {
 	url := fmt.Sprintf("%s%s/%s/atom/entry",
-	HATENA_BASE_URL,
-	user_configuration["hatena_id"],
-	user_configuration["blog_id"])
+		HATENA_BASE_URL,
+		user_configuration["hatena_id"],
+		user_configuration["blog_id"])
 	return url
 }
 
@@ -146,6 +146,21 @@ func main() {
 		publishSpecify  bool
 		categorySpecify string
 	)
+	flag.Usage = func() {
+		fmt.Fprintf(
+			os.Stderr,
+			`%s
+はてなブログ用コマンドラインクライアント.
+
+標準入力をはてなブログへ下書き投稿します.
+1行目をタイトル, 3行目以降を本文として扱います.
+
+アカウントの設定は~/.hbpファイルにて行ってください.
+
+[オプション]
+`, os.Args[0])
+		flag.PrintDefaults()
+	}
 	flag.StringVar(&fileSpecify,
 		"f",
 		"",
@@ -197,6 +212,7 @@ func post(fileSpecify, categorySpecify string, publishSpecify bool) (status int,
 }
 
 type UserConfiguration map[string]string
+
 var user_configuration UserConfiguration
 
 func load_config() UserConfiguration {
@@ -241,7 +257,7 @@ func create_config_file() {
 
 	content := []byte(
 		"hatena_id:Your hatena id\n" +
-		"blog_id:Your hatena blog id\n" +
-		"api_key:Your hatena blog atom api key")
+			"blog_id:Your hatena blog id\n" +
+			"api_key:Your hatena blog atom api key")
 	ioutil.WriteFile(config_file_path, content, os.ModePerm)
 }
