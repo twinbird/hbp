@@ -44,6 +44,13 @@ type App struct {
 	Draft   string   `xml:"app:draft"`
 }
 
+type PostConfig struct {
+	SourceFilePath string
+	Publish        bool
+	Category       string
+	Author         string
+}
+
 func create_post_xml(
 	fp *os.File,
 	author, fileSpecify, categorySpecify string,

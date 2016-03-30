@@ -69,9 +69,14 @@ func main() {
 		os.Exit(0)
 	}
 
-	status, err_msg := post(fileSpecify,
-		categorySpecify,
-		publishSpecify)
+	p := PostConfig{
+		SourceFilePath: fileSpecify,
+		Publish:        publishSpecify,
+		Category:       categorySpecify,
+		Author:         blog_config.hatena_id,
+	}
+
+	status, err_msg := post(p)
 
 	if status != 0 {
 		fmt.Fprintln(os.Stderr, err_msg)
@@ -80,19 +85,24 @@ func main() {
 	os.Exit(status)
 }
 
-func post(fileSpecify, categorySpecify string, publishSpecify bool) (status int, err_msg string) {
+func post(pcon PostConfig) (status int, err_msg string) {
 	var fp *os.File
 	fp = os.Stdin
-	if fileSpecify != "" {
+	if pcon.SourceFilePath != "" {
 		var err error
-		fp, err = os.Open(fileSpecify)
+		fp, err = os.Open(pcon.SourceFilePath)
 		if err != nil {
 			return 1, "ファイルオープンエラー."
 		}
 		defer fp.Close()
 	}
 
-	post_xml, xml_create_err := create_post_xml(fp, blog_config.hatena_id, fileSpecify, categorySpecify, publishSpecify)
+	post_xml, xml_create_err := create_post_xml(
+		fp,
+		blog_config.hatena_id,
+		pcon.SourceFilePath,
+		pcon.Category,
+		pcon.Publish)
 	if xml_create_err != nil {
 		return 1, "投稿内容に問題があります.タイトルの指定などを確認してください."
 	}
