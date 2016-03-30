@@ -13,11 +13,14 @@ const (
 	HATENA_BASE_URL = "https://blog.hatena.ne.jp/"
 )
 
-type UserConfiguration map[string]string
+type BlogConfig struct {
+	base_url  string
+	blog_id   string
+	hatena_id string
+	api_key   string
+}
 
-var user_configuration UserConfiguration
-
-func load_config() UserConfiguration {
+func load_config() (config BlogConfig, ret_err error) {
 	user, _ := user.Current()
 	config_file_path := (user.HomeDir + "/.hbp")
 	fp, err := os.Open(config_file_path)
@@ -28,8 +31,8 @@ func load_config() UserConfiguration {
 	return load_config_file(fp)
 }
 
-func load_config_file(fp *os.File) UserConfiguration {
-	m := make(UserConfiguration)
+func load_config_file(fp *os.File) (config BlogConfig, ret_err error) {
+	config.base_url = HATENA_BASE_URL
 	reader := csv.NewReader(fp)
 	reader.Comma = ':'
 	reader.LazyQuotes = true
@@ -38,12 +41,18 @@ func load_config_file(fp *os.File) UserConfiguration {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Fprintln(os.Stderr, "設定ファイルの読み込みに失敗しました.\nホームディレクトリ以下の.hbpファイルを確認してください.")
-			os.Exit(1)
+			return config, err
 		}
-		m[record[0]] = record[1]
+		switch record[0] {
+		case "hatena_id":
+			config.hatena_id = record[1]
+		case "blog_id":
+			config.blog_id = record[1]
+		case "api_key":
+			config.api_key = record[1]
+		}
 	}
-	return m
+	return config, nil
 }
 
 func config_file_exist() bool {
@@ -62,12 +71,4 @@ func create_config_file() {
 			"blog_id:Your hatena blog id\n" +
 			"api_key:Your hatena blog atom api key")
 	ioutil.WriteFile(config_file_path, content, os.ModePerm)
-}
-
-func draft_post_url() string {
-	url := fmt.Sprintf("%s%s/%s/atom/entry",
-		HATENA_BASE_URL,
-		user_configuration["hatena_id"],
-		user_configuration["blog_id"])
-	return url
 }

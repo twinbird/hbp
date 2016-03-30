@@ -48,13 +48,17 @@ func create_post_xml(
 	fp *os.File,
 	author, fileSpecify, categorySpecify string,
 	publishSpecify bool) (post_xml string, ret_err error) {
+
 	reader := bufio.NewReader(fp)
 
+	// First Row is Title
 	title, _ := reader.ReadString('\n')
 	title = strings.TrimRight(title, "\n")
 
+	// Second Row is Skip
 	reader.ReadString('\n')
 
+	// Third Row or Later is Contents
 	content := ""
 	buf := ""
 	var err error
@@ -66,23 +70,16 @@ func create_post_xml(
 		}
 	}
 
-	draft := true
-	if publishSpecify == true {
-		draft = false
-	}
-
-	build_xml := build_post_xml(string(title),
+	return build_post_xml(string(title),
 		author,
 		content,
 		string(categorySpecify),
-		draft)
-
-	return build_xml, nil
+		publishSpecify)
 }
 
-func build_post_xml(title, author, contents, category string, draft bool) string {
+func build_post_xml(title, author, contents, category string, publish bool) (build_xml string, err error) {
 	draft_str := "yes"
-	if draft == false {
+	if publish == true {
 		draft_str = "no"
 	}
 	v := &Entries{
@@ -94,22 +91,25 @@ func build_post_xml(title, author, contents, category string, draft bool) string
 		Category: Category{Term: category},
 		App:      App{Draft: draft_str},
 	}
-	output, err := xml.MarshalIndent(v, "", "    ")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "投稿用XMLの生成に失敗しました:", err)
-		return "error"
+	output, msl_err := xml.MarshalIndent(v, "", "    ")
+	if msl_err != nil {
+		return "", msl_err
 	}
 
-	return xml.Header + string(output)
+	return xml.Header + string(output), nil
 }
 
-func call_atom_api(xml string) error {
-	draft_post_url := draft_post_url()
+func call_atom_api(xml string, config BlogConfig) error {
+	draft_post_url := fmt.Sprintf("%s%s/%s/atom/entry",
+		config.base_url,
+		config.hatena_id,
+		config.blog_id)
+
 	req, _ := http.NewRequest(
 		"POST",
 		draft_post_url,
 		bytes.NewBuffer([]byte(xml)))
-	req.SetBasicAuth(user_configuration["hatena_id"], user_configuration["api_key"])
+	req.SetBasicAuth(config.hatena_id, config.api_key)
 	req.Header.Set("Content-Type", "application/atomsvc+xml; charset=utf-8")
 
 	client := new(http.Client)

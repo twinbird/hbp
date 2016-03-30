@@ -6,13 +6,22 @@ import (
 	"os"
 )
 
+var (
+	blog_config BlogConfig
+)
+
 func init() {
 	if config_file_exist() == false {
 		create_config_file()
 		fmt.Fprintln(os.Stderr, "設定ファイルが見つからなかったため,~/.hbpを生成しました.")
 		os.Exit(2)
 	}
-	user_configuration = load_config()
+	var err error
+	blog_config, err = load_config()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "設定ファイルの読み込みに失敗しました.\nホームディレクトリ以下の.hbpファイルを確認してください.")
+		os.Exit(1)
+	}
 }
 
 func main() {
@@ -83,12 +92,12 @@ func post(fileSpecify, categorySpecify string, publishSpecify bool) (status int,
 		defer fp.Close()
 	}
 
-	post_xml, xml_create_err := create_post_xml(fp, user_configuration["hatena_id"], fileSpecify, categorySpecify, publishSpecify)
+	post_xml, xml_create_err := create_post_xml(fp, blog_config.hatena_id, fileSpecify, categorySpecify, publishSpecify)
 	if xml_create_err != nil {
 		return 1, "投稿内容に問題があります.タイトルの指定などを確認してください."
 	}
 
-	api_call_err := call_atom_api(post_xml)
+	api_call_err := call_atom_api(post_xml, blog_config)
 	if api_call_err != nil {
 		return 1, "APIコールエラー.通信状況等を確認してください."
 	}
