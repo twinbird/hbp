@@ -66,9 +66,9 @@ func create_config_file() {
 	user, _ := user.Current()
 	config_file_path := (user.HomeDir + "/.hbp")
 
-	content := []byte(
-		"hatena_id:Your hatena id\n" +
-			"blog_id:Your hatena blog id\n" +
-			"api_key:Your hatena blog atom api key")
+	content := []byte(`
+hatena_id:Your hatena id
+blog_id:Your hatena blog id
+api_key:Your hatena blog atom api key`)
 	ioutil.WriteFile(config_file_path, content, os.ModePerm)
 }
