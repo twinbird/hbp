@@ -20,6 +20,7 @@ func main() {
 		fileSpecify     string
 		publishSpecify  bool
 		categorySpecify string
+		versionSpecify  bool
 	)
 	flag.Usage = func() {
 		fmt.Fprintf(
@@ -48,7 +49,16 @@ func main() {
 		"c",
 		"",
 		"投稿時に付加するカテゴリを指定します.")
+	flag.BoolVar(&versionSpecify,
+		"v",
+		false,
+		"バージョンを表示します.")
 	flag.Parse()
+
+	if versionSpecify == true {
+		fmt.Println("hbp: version 1.0")
+		os.Exit(0)
+	}
 
 	status, err_msg := post(fileSpecify,
 		categorySpecify,
