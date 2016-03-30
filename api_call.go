@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -53,13 +53,16 @@ type PostConfig struct {
 
 func create_post_xml(
 	fp *os.File,
-	author, fileSpecify, categorySpecify string,
+	author, categorySpecify string,
 	publishSpecify bool) (post_xml string, ret_err error) {
 
 	reader := bufio.NewReader(fp)
 
 	// First Row is Title
-	title, _ := reader.ReadString('\n')
+	title, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
 	title = strings.TrimRight(title, "\n")
 
 	// Second Row is Skip
@@ -68,12 +71,13 @@ func create_post_xml(
 	// Third Row or Later is Contents
 	content := ""
 	buf := ""
-	var err error
 	for {
-		buf, err = reader.ReadString('\n')
+		buf, ret_err = reader.ReadString('\n')
 		content += buf
-		if err == io.EOF {
+		if ret_err == io.EOF {
 			break
+		} else if ret_err != nil {
+			return "", ret_err
 		}
 	}
 
@@ -122,14 +126,14 @@ func call_atom_api(xml string, config BlogConfig) error {
 	client := new(http.Client)
 	res, req_err := client.Do(req)
 	defer res.Body.Close()
-	if req_err != nil || res.StatusCode != http.StatusCreated {
-		fmt.Fprintf(os.Stderr, "HTTPリクエストエラー.\nアカウント設定は正しいですか?\n~/.hbpを確認してください.\n")
-		os.Exit(1)
+
+	if req_err != nil {
+		return req_err
 	}
 
-	_, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return err
+	if res.StatusCode != http.StatusCreated {
+		errors.New("HTTP But Response")
 	}
+
 	return nil
 }
