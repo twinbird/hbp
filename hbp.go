@@ -108,7 +108,7 @@ func post(pcon PostConfig) (status int, err_msg string) {
 
 	api_call_err := call_atom_api(post_xml, blog_config)
 	if api_call_err != nil {
-		return 1, "APIコールエラー.通信状況を確認してください.アカウント設定は正しいですか?~/.hbpを確認してください."
+		return 1, "APIコールエラー.\n1. 通信状況を確認してください\n2. アカウント設定は正しいですか?  ~/.hbpを確認してください."
 	}
 
 	return 0, ""
