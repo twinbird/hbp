@@ -108,15 +108,15 @@ func build_post_xml(title, author, contents, category string, publish bool) (bui
 
 func call_atom_api(xml string, config BlogConfig) error {
 	draft_post_url := fmt.Sprintf("%s%s/%s/atom/entry",
-		config.base_url,
-		config.hatena_id,
-		config.blog_id)
+		config.Base_url,
+		config.Hatena_id,
+		config.Blog_id)
 
 	req, _ := http.NewRequest(
 		"POST",
 		draft_post_url,
 		bytes.NewBuffer([]byte(xml)))
-	req.SetBasicAuth(config.hatena_id, config.api_key)
+	req.SetBasicAuth(config.Hatena_id, config.Api_key)
 	req.Header.Set("Content-Type", "application/atomsvc+xml; charset=utf-8")
 
 	client := new(http.Client)

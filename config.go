@@ -14,10 +14,10 @@ const (
 )
 
 type BlogConfig struct {
-	base_url  string
-	blog_id   string
-	hatena_id string
-	api_key   string
+	Base_url  string
+	Blog_id   string
+	Hatena_id string
+	Api_key   string
 }
 
 func load_config() (config BlogConfig, ret_err error) {
@@ -32,7 +32,7 @@ func load_config() (config BlogConfig, ret_err error) {
 }
 
 func load_config_file(fp *os.File) (config BlogConfig, ret_err error) {
-	config.base_url = HATENA_BASE_URL
+	config.Base_url = HATENA_BASE_URL
 	reader := csv.NewReader(fp)
 	reader.Comma = ':'
 	reader.LazyQuotes = true
@@ -45,11 +45,11 @@ func load_config_file(fp *os.File) (config BlogConfig, ret_err error) {
 		}
 		switch record[0] {
 		case "hatena_id":
-			config.hatena_id = record[1]
+			config.Hatena_id = record[1]
 		case "blog_id":
-			config.blog_id = record[1]
+			config.Blog_id = record[1]
 		case "api_key":
-			config.api_key = record[1]
+			config.Api_key = record[1]
 		}
 	}
 	return config, nil

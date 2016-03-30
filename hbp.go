@@ -73,7 +73,7 @@ func main() {
 		SourceFilePath: fileSpecify,
 		Publish:        publishSpecify,
 		Category:       categorySpecify,
-		Author:         blog_config.hatena_id,
+		Author:         blog_config.Hatena_id,
 	}
 
 	status, err_msg := post(p)
@@ -99,7 +99,7 @@ func post(pcon PostConfig) (status int, err_msg string) {
 
 	post_xml, xml_create_err := create_post_xml(
 		fp,
-		blog_config.hatena_id,
+		blog_config.Hatena_id,
 		pcon.SourceFilePath,
 		pcon.Category,
 		pcon.Publish)
