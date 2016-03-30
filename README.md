@@ -28,23 +28,6 @@ $ hbp <<EOS
 EOS
 ```
 
-投稿内容は標準出力に出力されます.
-
-```
-$ hbp <<EOS
-タイトル
-
-本文
-はてなブログにテスト投稿する.
-EOS > posted_log.txt
-
-$ cat posted_log.txt
-タイトル
-
-本文
-はてなブログにテスト投稿する.
-```
-
 ## Options
 
 | Option | Description |
@@ -67,10 +50,10 @@ blog.txtの内容を公開状態で投稿する.
 hbp -f blog.txt -p
 ```
 
-blog.txtの内容を下書きとしてカテゴリーfoo,barで投稿する.
+blog.txtの内容を下書きとしてカテゴリーfooで投稿する.
 
 ```sh
-hbp -f blog.txt -c "foo,bar"
+hbp -f blog.txt -c "foo"
 ```
 
 ## Status
