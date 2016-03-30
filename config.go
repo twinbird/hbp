@@ -9,6 +9,10 @@ import (
 	"os/user"
 )
 
+const (
+	HATENA_BASE_URL = "https://blog.hatena.ne.jp/"
+)
+
 type UserConfiguration map[string]string
 
 var user_configuration UserConfiguration
@@ -58,4 +62,12 @@ func create_config_file() {
 			"blog_id:Your hatena blog id\n" +
 			"api_key:Your hatena blog atom api key")
 	ioutil.WriteFile(config_file_path, content, os.ModePerm)
+}
+
+func draft_post_url() string {
+	url := fmt.Sprintf("%s%s/%s/atom/entry",
+		HATENA_BASE_URL,
+		user_configuration["hatena_id"],
+		user_configuration["blog_id"])
+	return url
 }

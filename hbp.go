@@ -83,7 +83,7 @@ func post(fileSpecify, categorySpecify string, publishSpecify bool) (status int,
 		defer fp.Close()
 	}
 
-	post_xml, xml_create_err := create_post_xml(fp, fileSpecify, categorySpecify, publishSpecify)
+	post_xml, xml_create_err := create_post_xml(fp, user_configuration["hatena_id"], fileSpecify, categorySpecify, publishSpecify)
 	if xml_create_err != nil {
 		return 1, "投稿内容に問題があります.タイトルの指定などを確認してください."
 	}

@@ -12,10 +12,6 @@ import (
 	"strings"
 )
 
-const (
-	HATENA_BASE_URL = "https://blog.hatena.ne.jp/"
-)
-
 type Entries struct {
 	XMLName  xml.Name `xml:"entry"`
 	XMLns    string   `xml:"xmlns,attr"`
@@ -48,7 +44,10 @@ type App struct {
 	Draft   string   `xml:"app:draft"`
 }
 
-func create_post_xml(fp *os.File, fileSpecify, categorySpecify string, publishSpecify bool) (post_xml string, ret_err error) {
+func create_post_xml(
+	fp *os.File,
+	author, fileSpecify, categorySpecify string,
+	publishSpecify bool) (post_xml string, ret_err error) {
 	reader := bufio.NewReader(fp)
 
 	title, _ := reader.ReadString('\n')
@@ -72,7 +71,11 @@ func create_post_xml(fp *os.File, fileSpecify, categorySpecify string, publishSp
 		draft = false
 	}
 
-	build_xml := build_post_xml(string(title), user_configuration["hatena_id"], content, string(categorySpecify), draft)
+	build_xml := build_post_xml(string(title),
+		author,
+		content,
+		string(categorySpecify),
+		draft)
 
 	return build_xml, nil
 }
@@ -100,14 +103,6 @@ func build_post_xml(title, author, contents, category string, draft bool) string
 	return xml.Header + string(output)
 }
 
-func draft_post_url() string {
-	url := fmt.Sprintf("%s%s/%s/atom/entry",
-		HATENA_BASE_URL,
-		user_configuration["hatena_id"],
-		user_configuration["blog_id"])
-	return url
-}
-
 func call_atom_api(xml string) error {
 	draft_post_url := draft_post_url()
 	req, _ := http.NewRequest(
@@ -120,7 +115,7 @@ func call_atom_api(xml string) error {
 	client := new(http.Client)
 	res, req_err := client.Do(req)
 	defer res.Body.Close()
-	if req_err != nil || res.StatusCode != http.StatusOK {
+	if req_err != nil || res.StatusCode != http.StatusCreated {
 		fmt.Fprintf(os.Stderr, "HTTPリクエストエラー.\nアカウント設定は正しいですか?\n~/.hbpを確認してください.\n")
 		os.Exit(1)
 	}
