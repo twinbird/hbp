@@ -65,7 +65,7 @@ func main() {
 	flag.Parse()
 
 	if versionSpecify == true {
-		fmt.Println("hbp: version 1.0")
+		fmt.Println("hbp: version 0.1")
 		os.Exit(0)
 	}
 
