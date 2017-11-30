@@ -11,12 +11,16 @@ var (
 )
 
 func init() {
-	if config_file_exist() == false {
+	if local_config_file_exist() == false && config_file_exist() == false {
 		create_config_file()
 		fmt.Fprintln(os.Stderr, "設定ファイルが見つからなかったため,~/.hbpを生成しました.")
 		os.Exit(2)
 	}
 	var err error
+	blog_config, err = load_local_config()
+	if err == nil {
+		return
+	}
 	blog_config, err = load_config()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "設定ファイルの読み込みに失敗しました.\nホームディレクトリ以下の.hbpファイルを確認してください.")

@@ -20,6 +20,16 @@ type BlogConfig struct {
 	Api_key   string
 }
 
+func load_local_config() (config BlogConfig, ret_err error) {
+	cur, _ := os.Getwd()
+	config_file_path := (cur + "/.hbp")
+	fp, err := os.Open(config_file_path)
+	if err != nil {
+		return config, fmt.Errorf(".hbp is not found.")
+	}
+	return load_config_file(fp)
+}
+
 func load_config() (config BlogConfig, ret_err error) {
 	user, _ := user.Current()
 	config_file_path := (user.HomeDir + "/.hbp")
@@ -53,6 +63,13 @@ func load_config_file(fp *os.File) (config BlogConfig, ret_err error) {
 		}
 	}
 	return config, nil
+}
+
+func local_config_file_exist() bool {
+	cur, _ := os.Getwd()
+	config_file_path := (cur + "/.hbp")
+	_, err := os.Stat(config_file_path)
+	return err == nil
 }
 
 func config_file_exist() bool {
